@@ -25,31 +25,54 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function getPageContent(tabId) {
-    const response = await chrome.tabs.sendMessage(tabId, {action: "getContent"});
-    return response.content;
+    try {
+        console.log('Requesting content from tab:', tabId);
+        const response = await chrome.tabs.sendMessage(tabId, {action: "getContent"});
+        console.log('Content received, length:', response.content.length);
+        return response.content;
+    } catch (error) {
+        console.error('Error getting page content:', error);
+        throw error;
+    }
 }
 
 async function summarizeContent(content) {
-    const response = await fetch(MODEL_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${HF_API_KEY}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            inputs: content,
-            parameters: {
-                max_length: settings.sentenceCount * 30,
-                min_length: settings.sentenceCount * 15,
-                num_return_sequences: 1
-            }
-        })
-    });
-    const result = await response.json();
-    chrome.runtime.sendMessage({
-        action: "updateSummary", 
-        summary: result[0].summary_text
-    });
+    try {
+        console.log('Starting summarization, content length:', content.length);
+        const response = await fetch(MODEL_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${HF_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                inputs: content,
+                parameters: {
+                    max_length: settings.sentenceCount * 30,
+                    min_length: settings.sentenceCount * 15,
+                    num_return_sequences: 1
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Summary received from API');
+        
+        chrome.runtime.sendMessage({
+            action: "updateSummary", 
+            summary: result[0].summary_text
+        });
+    } catch (error) {
+        console.error('Summarization error:', error);
+        chrome.runtime.sendMessage({
+            action: "updateSummary",
+            summary: "Error generating summary. Please try again."
+        });
+    }
 }
 
 async function summarizePage(tabId) {

@@ -6,18 +6,26 @@ function getPageContent() {
         document.querySelector('.post-text') || 
         document.querySelector('#content') ||
         document.querySelector('.content') ||
+        document.querySelector('.question') || // Stack Overflow specific
+        document.querySelector('#answers') || // Stack Overflow specific
         document.body;
     
-    // Get clean text content
+    // Get clean text content with logging
     const text = mainContent.innerText;
+    console.log('Extracted content length:', text.length);
     
     // Return trimmed and limited content
-    return text.trim().substring(0, 5000);
+    const processedText = text.trim().substring(0, 5000);
+    console.log('Processed content length:', processedText.length);
+    
+    return processedText;
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "getContent") {
-        sendResponse({content: getPageContent()});
+        const content = getPageContent();
+        console.log('Sending content to background script');
+        sendResponse({content: content});
     }
     return true;
 });
