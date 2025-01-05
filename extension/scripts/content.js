@@ -1,7 +1,18 @@
 function getPageContent() {
-    const article = document.querySelector('article') || document.body;
-    const text = article.innerText;
-    return text.substring(0, 5000);
+    // Target multiple content containers for better coverage
+    const mainContent = 
+        document.querySelector('article') || 
+        document.querySelector('main') ||
+        document.querySelector('.post-text') || 
+        document.querySelector('#content') ||
+        document.querySelector('.content') ||
+        document.body;
+    
+    // Get clean text content
+    const text = mainContent.innerText;
+    
+    // Return trimmed and limited content
+    return text.trim().substring(0, 5000);
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
