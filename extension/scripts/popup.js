@@ -31,14 +31,26 @@ document.addEventListener('DOMContentLoaded', () => {
         
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             const tab = tabs[0];
-            chrome.tabs.sendMessage(tab.id, {action: "getContent"}, (response) => {
-                if (response && response.content) {
-                    chrome.runtime.sendMessage({
-                        action: "summarize",
-                        content: response.content
-                    });
-                }
+            // First inject the content script to ensure it's there
+            chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                files: ['/scripts/content.js']
+            }).then(() => {
+                // Now send the message after ensuring content script is loaded
+                chrome.tabs.sendMessage(tab.id, {action: "getContent"}, (response) => {
+                    if (chrome.runtime.lastError) {
+                        summaryText.textContent = "Please refresh the page and try again.";
+                        loading.classList.add('hidden');
+                        return;
+                    }
+                    if (response && response.content) {
+                        chrome.runtime.sendMessage({
+                            action: "summarize",
+                            content: response.content
+                        });
+                    }
+                });
             });
         });
-    });
+    });    
 });

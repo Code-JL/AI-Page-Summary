@@ -29,23 +29,25 @@ function isAllowedUrl(url) {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && isAllowedUrl(tab.url)) {
-        chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            files: ['/scripts/content.js']
-        }).then(() => {
-            chrome.storage.sync.get(['autoSummarize'], (result) => {
-                if (result.autoSummarize) {
-                    setTimeout(() => {
-                        chrome.tabs.sendMessage(tabId, {action: "getContent"}, (response) => {
-                            if (response && response.content) {
-                                summarizeContent(response.content);
-                            }
-                        });
-                    }, 3000);
-                }
-            });
-        }).catch(() => {
-            // Silently handle any injection errors for unsupported pages
+        chrome.windows.getCurrent().then(window => {
+            if (window && window.focused) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: ['/scripts/content.js']
+                }).then(() => {
+                    chrome.storage.sync.get(['autoSummarize'], (result) => {
+                        if (result.autoSummarize) {
+                            setTimeout(() => {
+                                chrome.tabs.sendMessage(tabId, {action: "getContent"}, (response) => {
+                                    if (response && response.content) {
+                                        summarizeContent(response.content);
+                                    }
+                                });
+                            }, 3000);
+                        }
+                    });
+                });
+            }
         });
     }
 });
@@ -71,6 +73,11 @@ async function getPageContent(tabId) {
 async function summarizeContent(content) {
     try {
         console.log('Starting summarization, content length:', content.length);
+        
+        // Get the current sentence count setting
+        const storageData = await chrome.storage.sync.get(['sentenceCount']);
+        const sentences = storageData.sentenceCount || 3;
+        
         const response = await fetch(MODEL_URL, {
             method: 'POST',
             headers: {
@@ -80,8 +87,9 @@ async function summarizeContent(content) {
             body: JSON.stringify({
                 inputs: content,
                 parameters: {
-                    max_length: settings.sentenceCount * 30,
-                    min_length: settings.sentenceCount * 15,
+                    max_length: sentences * 50,
+                    min_length: sentences * 25,
+                    num_beams: sentences,
                     num_return_sequences: 1
                 }
             })
@@ -91,12 +99,12 @@ async function summarizeContent(content) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
+        const apiResult = await response.json();
         console.log('Summary received from API');
         
         chrome.runtime.sendMessage({
             action: "updateSummary", 
-            summary: result[0].summary_text
+            summary: apiResult[0].summary_text
         });
     } catch (error) {
         console.error('Summarization error:', error);
@@ -106,6 +114,7 @@ async function summarizeContent(content) {
         });
     }
 }
+
 
 async function summarizePage(tabId) {
     const content = await getPageContent(tabId);
