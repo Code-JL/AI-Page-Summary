@@ -7,11 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const loading = document.getElementById('loading');
     const themeToggle = document.getElementById('themeToggle');
 
+    function updateIcons(theme) {
+        const icons = document.querySelectorAll('img[data-icon]');
+        icons.forEach(icon => {
+            const iconName = icon.getAttribute('data-icon');
+            icon.src = `/icons/${iconName}-${theme}.png`;
+        });
+    }
+
     chrome.storage.sync.get(['autoSummarize', 'sentenceCount', 'theme'], (result) => {
         autoSummarize.checked = result.autoSummarize || false;
         sentenceInput.value = result.sentenceCount || 3;
         if (result.theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
+            updateIcons('dark');
         }
     });
 
@@ -20,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         chrome.storage.sync.set({ theme: newTheme });
+        updateIcons(newTheme);
     });
 
     sentenceInput.addEventListener('change', () => {
@@ -42,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => {
                 copyButton.textContent = 'Copied!';
                 setTimeout(() => {
-                    copyButton.innerHTML = '<img src="/icons/copy.png" alt="Copy" width="16" height="16"> Copy Summary';
+                    copyButton.innerHTML = `<img src="/icons/copy16-${document.documentElement.getAttribute('data-theme')}.png" data-icon="copy" alt="Copy" width="16" height="16">`;
                 }, 2000);
             });
     });

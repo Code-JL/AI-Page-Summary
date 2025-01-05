@@ -1,3 +1,22 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --border-color: #ccc;
+    --button-bg: #629eff;
+}
+
+[data-theme="dark"] {
+    --bg-color: #202124;
+    --text-color: #d2d2d2;
+    --border-color: #4a4b4f;
+    --button-bg: #0b3b89;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
 .container {
     background-color: var(--bg-color);
     width: 300px;
@@ -11,7 +30,7 @@
 .summary-box {
     border-color: var(--border-color);
     min-height: 100px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     padding: 10px;
     margin: 10px 0;
 }
@@ -27,7 +46,15 @@ button {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin: 4px;
+}
+
+.icon-button img {
+    margin-right: 4px;
 }
 
 input[type="number"] {
@@ -39,26 +66,6 @@ label {
     margin-bottom: 8px;
 }
 
-:root {
-    --bg-color: #ffffff;
-    --text-color: #000000;
-    --border-color: #ccc;
-    --button-bg: #4285f4;
-}
-
-[data-theme="dark"] {
-    --bg-color: #202124;
-    --text-color: #ffffff;
-    --border-color: #5f6368;
-    --button-bg: #8ab4f8;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-}
-
-/* Add theme toggle button styles */
 .theme-toggle {
     position: absolute;
     top: 10px;
