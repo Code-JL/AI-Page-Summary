@@ -8,13 +8,13 @@
         "48": "/icons/PageSummary48.png",
         "128": "/icons/PageSummary128.png"
     },
-    "page_action": {
+    "browser_action": {
         "default_icon": {
             "16": "/icons/PageSummary16.png",
             "48": "/icons/PageSummary48.png",
             "128": "/icons/PageSummary128.png"
         },
-        "default_popup": "popup.html",
+        "default_popup": "/popup.html",
         "default_title": "Get Page Summary"
     },
     "permissions": [
@@ -24,10 +24,10 @@
     ],
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": ["content.js"]
+        "js": ["/scripts/content.js"]
     }],
     "background": {
-        "scripts": ["background.js"],
+        "scripts": ["/scripts/background.js"],
         "persistent": false
     }
 }
