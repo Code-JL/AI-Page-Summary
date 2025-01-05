@@ -1,5 +1,6 @@
 const HF_API_KEY = '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';
 const MODEL_URL = 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn';
+const MAX_HISTORY_ITEMS = 10;
 
 let settings = {
     autoSummarize: false,
@@ -10,8 +11,18 @@ chrome.storage.sync.get(['autoSummarize', 'sentenceCount'], (result) => {
     settings = {...settings, ...result};
 });
 
+async function addToHistory(url, summary) {
+    const { summaryHistory = [] } = await chrome.storage.local.get('summaryHistory');
+    const newHistory = [{
+        url,
+        summary,
+        timestamp: Date.now()
+    }, ...summaryHistory].slice(0, MAX_HISTORY_ITEMS);
+    
+    await chrome.storage.local.set({ summaryHistory: newHistory });
+}
+
 function isAllowedUrl(url) {
-    // List of common protected URL schemes
     const protectedSchemes = [
         'chrome://',
         'chrome-extension://',
@@ -98,11 +109,13 @@ async function summarizeContent(content) {
         }
 
         const apiResult = await response.json();
-        
-        // Split into sentences and limit to target count
         const sentences = apiResult[0].summary_text.match(/[^.!?]+[.!?]+/g) || [];
         const limitedSummary = sentences.slice(0, targetSentences).join(' ');
         
+        // Save to history
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        await addToHistory(tab.url, limitedSummary);
+
         chrome.runtime.sendMessage({
             action: "updateSummary", 
             summary: limitedSummary
@@ -115,7 +128,6 @@ async function summarizeContent(content) {
         });
     }
 }
-
 
 async function summarizePage(tabId) {
     const content = await getPageContent(tabId);
