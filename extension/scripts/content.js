@@ -1,23 +1,38 @@
 function getPageContent() {
-    // Target multiple content containers for better coverage
+    // First try specific content containers
     const mainContent = 
         document.querySelector('article') || 
         document.querySelector('main') ||
         document.querySelector('.post-text') || 
         document.querySelector('#content') ||
-        document.querySelector('.content') ||
-        document.querySelector('.question') || // Stack Overflow specific
-        document.querySelector('#answers') || // Stack Overflow specific
-        document.body;
-    
+        document.querySelector('.content');
+
+    // If specific containers fail, find the most content-rich element
+    if (!mainContent) {
+        const elements = document.body.getElementsByTagName('*');
+        let maxLength = 0;
+        let richestContent = document.body;
+        
+        for (let element of elements) {
+            const text = element.innerText;
+            if (text && text.length > maxLength) {
+                maxLength = text.length;
+                richestContent = element;
+            }
+        }
+        mainContent = richestContent;
+    }
+
     // Get clean text content with logging
     const text = mainContent.innerText;
     console.log('Extracted content length:', text.length);
-    
+
     // Return trimmed and limited content
-    const processedText = text.trim().substring(0, 5000);
+    const processedText = text.trim()
+        .replace(/\s+/g, ' ')
+        .substring(0, 3000);
     console.log('Processed content length:', processedText.length);
-    
+
     return processedText;
 }
 
