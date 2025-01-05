@@ -1,12 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const sentenceInput = document.getElementById('sentenceCount');
-    const autoSummarize = document.getElementById('autoSummarize');
-    const copyButton = document.getElementById('copyButton');
-    const summaryButton = document.getElementById('getSummary');
-    const summaryText = document.getElementById('summaryText');
-    const loading = document.getElementById('loading');
-    const themeToggle = document.getElementById('themeToggle');
+/**
+ * @fileoverview Popup interface controller for the Article Summarizer Extension
+ * Manages user interactions, theme switching, and summary generation
+ * @version 1.0.0
+ */
 
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Element References
+    const elements = {
+        sentenceInput: document.getElementById('sentenceCount'),
+        autoSummarize: document.getElementById('autoSummarize'),
+        copyButton: document.getElementById('copyButton'),
+        summaryButton: document.getElementById('getSummary'),
+        summaryText: document.getElementById('summaryText'),
+        loading: document.getElementById('loading'),
+        themeToggle: document.getElementById('themeToggle')
+    };
+
+    /**
+     * Updates icon themes throughout the interface
+     * @param {string} theme - The theme to apply ('light' or 'dark')
+     */
     function updateIcons(theme) {
         const icons = document.querySelectorAll('img[data-icon]');
         icons.forEach(icon => {
@@ -14,18 +27,24 @@ document.addEventListener('DOMContentLoaded', () => {
             icon.src = `/icons/${iconName}16-${theme}.png`;
         });
     }
-    
 
+    /**
+     * Initializes the popup with stored user preferences
+     */
     chrome.storage.sync.get(['autoSummarize', 'sentenceCount', 'theme'], (result) => {
-        autoSummarize.checked = result.autoSummarize || false;
-        sentenceInput.value = result.sentenceCount || 3;
+        elements.autoSummarize.checked = result.autoSummarize || false;
+        elements.sentenceInput.value = result.sentenceCount || 3;
+        
         if (result.theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
             updateIcons('dark');
         }
     });
 
-    themeToggle.addEventListener('click', () => {
+    /**
+     * Theme toggle handler
+     */
+    elements.themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
@@ -33,47 +52,63 @@ document.addEventListener('DOMContentLoaded', () => {
         updateIcons(newTheme);
     });
 
-    sentenceInput.addEventListener('change', () => {
-        chrome.storage.sync.set({sentenceCount: sentenceInput.value});
+    /**
+     * Settings change handlers
+     */
+    elements.sentenceInput.addEventListener('change', () => {
+        chrome.storage.sync.set({sentenceCount: elements.sentenceInput.value});
     });
 
-    autoSummarize.addEventListener('change', () => {
-        chrome.storage.sync.set({autoSummarize: autoSummarize.checked});
+    elements.autoSummarize.addEventListener('change', () => {
+        chrome.storage.sync.set({autoSummarize: elements.autoSummarize.checked});
     });
 
+    /**
+     * Summary update message handler
+     */
     chrome.runtime.onMessage.addListener((request) => {
         if (request.action === "updateSummary") {
-            loading.classList.add('hidden');
-            summaryText.textContent = request.summary;
+            elements.loading.classList.add('hidden');
+            elements.summaryText.textContent = request.summary;
         }
     });
 
-    copyButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(summaryText.textContent)
+    /**
+     * Copy button handler with visual feedback
+     */
+    elements.copyButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(elements.summaryText.textContent)
             .then(() => {
-                copyButton.textContent = 'Copied!';
+                elements.copyButton.textContent = 'Copied!';
                 setTimeout(() => {
-                    copyButton.innerHTML = `<img src="/icons/copy16-${document.documentElement.getAttribute('data-theme')}.png" data-icon="copy" alt="Copy" width="16" height="16"> Copy Summary`;
+                    const theme = document.documentElement.getAttribute('data-theme');
+                    elements.copyButton.innerHTML = `<img src="/icons/copy16-${theme}.png" data-icon="copy" alt="Copy" width="16" height="16"> Copy Summary`;
                 }, 2000);
             });
     });
 
-    summaryButton.addEventListener('click', () => {
-        loading.classList.remove('hidden');
-        summaryText.textContent = '';
+    /**
+     * Summary generation handler
+     */
+    elements.summaryButton.addEventListener('click', () => {
+        elements.loading.classList.remove('hidden');
+        elements.summaryText.textContent = '';
         
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             const tab = tabs[0];
+            
+            // Inject content script and request summary
             chrome.scripting.executeScript({
                 target: { tabId: tab.id },
                 files: ['/scripts/content.js']
             }).then(() => {
                 chrome.tabs.sendMessage(tab.id, {action: "getContent"}, (response) => {
                     if (chrome.runtime.lastError) {
-                        summaryText.textContent = "Please refresh the page and try again.";
-                        loading.classList.add('hidden');
+                        elements.summaryText.textContent = "Please refresh the page and try again.";
+                        elements.loading.classList.add('hidden');
                         return;
                     }
+
                     if (response && response.content) {
                         chrome.runtime.sendMessage({
                             action: "summarize",

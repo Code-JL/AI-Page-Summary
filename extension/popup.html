@@ -1,27 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered webpage summarization tool">
     <title>AI Page Summary</title>
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
+    <!-- Main Container -->
     <div class="container">
-        <button id="themeToggle" class="theme-toggle">
-            <img src="/icons/theme16-light.png" data-icon="theme" alt="Theme" width="16" height="16">
+        <!-- Theme Toggle Button -->
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+            <img src="/icons/theme16-light.png" 
+                 data-icon="theme" 
+                 alt="Theme" 
+                 width="16" 
+                 height="16">
         </button>
+
+        <!-- Settings Panel -->
         <div class="settings">
-            <label>Sentences: <input type="number" id="sentenceCount" min="1" max="10" value="3"></label>
-            <label>Auto-summarize: <input type="checkbox" id="autoSummarize"></label>
+            <label for="sentenceCount">
+                Sentences: 
+                <input type="number" 
+                       id="sentenceCount" 
+                       min="1" 
+                       max="10" 
+                       value="3"
+                       aria-label="Number of sentences">
+            </label>
+            <label for="autoSummarize">
+                Auto-summarize: 
+                <input type="checkbox" 
+                       id="autoSummarize"
+                       aria-label="Enable auto-summarize">
+            </label>
         </div>
-        <button id="copyButton" class="icon-button">
-            <img src="/icons/copy16-light.png" data-icon="copy" alt="Copy" width="16" height="16">
+
+        <!-- Copy Button -->
+        <button id="copyButton" class="icon-button" aria-label="Copy summary">
+            <img src="/icons/copy16-light.png" 
+                 data-icon="copy" 
+                 alt="Copy" 
+                 width="16" 
+                 height="16">
+            Copy Summary
         </button>
-        <div id="summary" class="summary-box">
+
+        <!-- Summary Display Area -->
+        <div id="summary" class="summary-box" role="region" aria-live="polite">
             <div id="loading" class="hidden">Summarizing...</div>
             <div id="summaryText"></div>
         </div>
-        <button id="getSummary">Summarize Page</button>
+
+        <!-- Action Button -->
+        <button id="getSummary" aria-label="Generate summary">
+            Summarize Page
+        </button>
     </div>
+
+    <!-- Scripts -->
     <script src="/scripts/popup.js"></script>
 </body>
 </html>

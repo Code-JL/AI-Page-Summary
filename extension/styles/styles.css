@@ -1,3 +1,10 @@
+/**
+ * Article Summarizer Extension Styles
+ * Implements a responsive, theme-aware design system
+ * Version 1.0.0
+ */
+
+/* Theme Variables - Light Mode (Default) */
 :root {
     --bg-color: #ffffff;
     --text-color: #000000;
@@ -5,6 +12,7 @@
     --button-bg: #629eff;
 }
 
+/* Dark Mode Theme Override */
 [data-theme="dark"] {
     --bg-color: #202124;
     --text-color: #d2d2d2;
@@ -12,11 +20,13 @@
     --button-bg: #0b3b89;
 }
 
+/* Base Styles */
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
 }
 
+/* Layout Components */
 .container {
     background-color: var(--bg-color);
     width: 300px;
@@ -27,6 +37,7 @@ body {
     margin-bottom: 15px;
 }
 
+/* Summary Display Area */
 .summary-box {
     border-color: var(--border-color);
     min-height: 100px;
@@ -35,10 +46,12 @@ body {
     margin: 10px 0;
 }
 
+/* Utility Classes */
 .hidden {
     display: none;
 }
 
+/* Interactive Elements */
 button {
     background: var(--button-bg);
     color: white;
@@ -57,6 +70,7 @@ button {
     margin-right: 4px;
 }
 
+/* Form Elements */
 input[type="number"] {
     width: 60px;
 }
@@ -66,6 +80,7 @@ label {
     margin-bottom: 8px;
 }
 
+/* Theme Toggle Control */
 .theme-toggle {
     position: absolute;
     top: 10px;
