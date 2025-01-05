@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Page Summarizer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="settings">
+            <label>Sentences: <input type="number" id="sentenceCount" min="1" max="10" value="3"></label>
+            <label>Auto-summarize: <input type="checkbox" id="autoSummarize"></label>
+        </div>
+        <div id="summary" class="summary-box">
+            <div id="loading" class="hidden">Summarizing...</div>
+            <div id="summaryText"></div>
+        </div>
+        <button id="getSummary">Summarize Page</button>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
