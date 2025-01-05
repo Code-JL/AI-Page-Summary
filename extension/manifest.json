@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "AI Page Summary",
     "description": "Enables you to get a worded summary of the page you are on.",
     "version": "1.0",
@@ -8,7 +8,7 @@
         "48": "/icons/PageSummary48.png",
         "128": "/icons/PageSummary128.png"
     },
-    "browser_action": {
+    "action": {
         "default_icon": {
             "16": "/icons/PageSummary16.png",
             "48": "/icons/PageSummary48.png",
@@ -20,6 +20,9 @@
     "permissions": [
         "activeTab",
         "storage",
+        "scripting"
+    ],
+    "host_permissions": [
         "<all_urls>"
     ],
     "content_scripts": [{
@@ -28,10 +31,10 @@
         "css": ["/styles/styles.css"]
     }],
     "background": {
-        "scripts": ["/scripts/background.js"],
-        "persistent": false
+        "service_worker": "/scripts/background.js"
     },
-    "web_accessible_resources": [
-        "styles/styles.css"
-    ]
+    "web_accessible_resources": [{
+        "resources": ["styles/styles.css"],
+        "matches": ["<all_urls>"]
+    }]
 }

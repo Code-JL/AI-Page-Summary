@@ -11,10 +11,23 @@ chrome.storage.sync.get(['autoSummarize', 'sentenceCount'], (result) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && settings.autoSummarize) {
-        setTimeout(() => {
-            summarizePage(tabId);
-        }, 3000);
+    if (changeInfo.status === 'complete') {
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            files: ['/scripts/content.js']
+        }).then(() => {
+            chrome.storage.sync.get(['autoSummarize'], (result) => {
+                if (result.autoSummarize) {
+                    setTimeout(() => {
+                        chrome.tabs.sendMessage(tabId, {action: "getContent"}, (response) => {
+                            if (response && response.content) {
+                                summarizeContent(response.content);
+                            }
+                        });
+                    }, 3000);
+                }
+            });
+        });
     }
 });
 
