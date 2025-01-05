@@ -17,3 +17,22 @@
 .hidden {
     display: none;
 }
+
+button {
+    background: #4285f4;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+input[type="number"] {
+    width: 60px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
