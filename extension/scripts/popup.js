@@ -25,18 +25,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    summaryButton.addEventListener('click', async () => {
+    summaryButton.addEventListener('click', () => {
         loading.classList.remove('hidden');
         summaryText.textContent = '';
         
-        const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-        chrome.tabs.sendMessage(tab.id, {action: "getContent"}, async (response) => {
-            if (response && response.content) {
-                chrome.runtime.sendMessage({
-                    action: "summarize",
-                    content: response.content
-                });
-            }
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            const tab = tabs[0];
+            chrome.tabs.sendMessage(tab.id, {action: "getContent"}, (response) => {
+                if (response && response.content) {
+                    chrome.runtime.sendMessage({
+                        action: "summarize",
+                        content: response.content
+                    });
+                }
+            });
         });
     });
 });

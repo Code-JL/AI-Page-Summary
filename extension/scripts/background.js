@@ -18,13 +18,18 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "summarize") {
+        summarizeContent(request.content);
+    }
+});
+
 async function getPageContent(tabId) {
     const response = await chrome.tabs.sendMessage(tabId, {action: "getContent"});
     return response.content;
 }
 
-async function summarizePage(tabId) {
-    const content = await getPageContent(tabId);
+async function summarizeContent(content) {
     const response = await fetch(MODEL_URL, {
         method: 'POST',
         headers: {
@@ -45,4 +50,9 @@ async function summarizePage(tabId) {
         action: "updateSummary", 
         summary: result[0].summary_text
     });
+}
+
+async function summarizePage(tabId) {
+    const content = await getPageContent(tabId);
+    await summarizeContent(content);
 }
