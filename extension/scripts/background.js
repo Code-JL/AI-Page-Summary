@@ -72,11 +72,8 @@ async function getPageContent(tabId) {
 
 async function summarizeContent(content) {
     try {
-        console.log('Starting summarization, content length:', content.length);
-        
-        // Get the current sentence count setting
         const storageData = await chrome.storage.sync.get(['sentenceCount']);
-        const sentences = storageData.sentenceCount || 3;
+        const targetSentences = storageData.sentenceCount || 3;
         
         const response = await fetch(MODEL_URL, {
             method: 'POST',
@@ -87,9 +84,10 @@ async function summarizeContent(content) {
             body: JSON.stringify({
                 inputs: content,
                 parameters: {
-                    max_length: sentences * 50,
-                    min_length: sentences * 25,
-                    num_beams: sentences,
+                    max_length: targetSentences * 25,
+                    min_length: targetSentences * 15,
+                    length_penalty: 2.0,
+                    num_beams: 4,
                     num_return_sequences: 1
                 }
             })
@@ -100,11 +98,14 @@ async function summarizeContent(content) {
         }
 
         const apiResult = await response.json();
-        console.log('Summary received from API');
+        
+        // Split into sentences and limit to target count
+        const sentences = apiResult[0].summary_text.match(/[^.!?]+[.!?]+/g) || [];
+        const limitedSummary = sentences.slice(0, targetSentences).join(' ');
         
         chrome.runtime.sendMessage({
             action: "updateSummary", 
-            summary: apiResult[0].summary_text
+            summary: limitedSummary
         });
     } catch (error) {
         console.error('Summarization error:', error);
