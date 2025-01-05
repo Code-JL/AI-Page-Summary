@@ -10,8 +10,25 @@ chrome.storage.sync.get(['autoSummarize', 'sentenceCount'], (result) => {
     settings = {...settings, ...result};
 });
 
+function isAllowedUrl(url) {
+    // List of common protected URL schemes
+    const protectedSchemes = [
+        'chrome://',
+        'chrome-extension://',
+        'brave://',
+        'edge://',
+        'about:',
+        'data:',
+        'file:',
+        'view-source:',
+        'chrome-search://'
+    ];
+    
+    return url && !protectedSchemes.some(scheme => url.startsWith(scheme));
+}
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete') {
+    if (changeInfo.status === 'complete' && isAllowedUrl(tab.url)) {
         chrome.scripting.executeScript({
             target: { tabId: tabId },
             files: ['/scripts/content.js']
@@ -27,6 +44,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                     }, 3000);
                 }
             });
+        }).catch(() => {
+            // Silently handle any injection errors for unsupported pages
         });
     }
 });
