@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name" : "AIPageSummary",
+    "description": "Enables you to get a worded summary of the page you are on.",
+    "version" : "1.0",
+    "icons": {
+        "16": "/icons/PageSummary16.png",
+        "48": "/icons/PageSummary48.png",
+        "128": "/icons/PageSummary128.png"
+    },
+    "page_action" :{
+        "default_icon": {
+            "16": "/icons/PageSummary16.png",
+            "48": "/icons/PageSummary48.png",
+            "128": "/icons/PageSummary128.png"
+        }
+    },
+    "content_scripts": [{}]
+}
