@@ -11,9 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const icons = document.querySelectorAll('img[data-icon]');
         icons.forEach(icon => {
             const iconName = icon.getAttribute('data-icon');
-            icon.src = `/icons/${iconName}-${theme}.png`;
+            icon.src = `/icons/${iconName}16-${theme}.png`;
         });
     }
+    
 
     chrome.storage.sync.get(['autoSummarize', 'sentenceCount', 'theme'], (result) => {
         autoSummarize.checked = result.autoSummarize || false;
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => {
                 copyButton.textContent = 'Copied!';
                 setTimeout(() => {
-                    copyButton.innerHTML = `<img src="/icons/copy16-${document.documentElement.getAttribute('data-theme')}.png" data-icon="copy" alt="Copy" width="16" height="16">`;
+                    copyButton.innerHTML = `<img src="/icons/copy16-${document.documentElement.getAttribute('data-theme')}.png" data-icon="copy" alt="Copy" width="16" height="16"> Copy Summary`;
                 }, 2000);
             });
     });
